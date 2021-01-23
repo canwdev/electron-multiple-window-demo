@@ -39,7 +39,6 @@ function createWindow() {
       spellcheck: false,
       enableRemoteModule: true,
       contextIsolation: true,
-      nodeIntegrationInWorker: false,
       preload: path.join(__dirname, 'preload.js'),
       devTools: true
     },

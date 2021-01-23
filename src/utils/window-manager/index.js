@@ -16,11 +16,15 @@ class WindowManager {
     // A value indicating that an IPC events has been initialized.
     this.initialized = false
 
+    // Listen events
     this.onCreateWindow = (ev, config, url) => {
       this.createWindow(config, url)
     }
     this.onSendMessage = (ev, windowId, message) => {
       ev.sender.send(Events.SEND_MESSAGE, this.sendMessage(windowId, message))
+    }
+    this.onGetWindowIds = () => {
+      return this.getWindowIds()
     }
 
     this.initializeIpcEvents()
@@ -33,7 +37,7 @@ class WindowManager {
 
     ipcMain.handle(Events.CREATE_WINDOW, this.onCreateWindow)
     ipcMain.handle(Events.SEND_MESSAGE, this.onSendMessage)
-    ipcMain.handle(Events.GET_WINDOW_IDS, this.getWindowIds)
+    ipcMain.handle(Events.GET_WINDOW_IDS, this.onGetWindowIds)
 
     this.initialized = true
   }
@@ -50,13 +54,15 @@ class WindowManager {
 
   createWindow(config = {}, url = 'http://localhost:4999') {
     const {
-      width = 800,
-      height = 600,
+      width = 1000,
+      height = 700,
       minWidth = 480,
       minHeight = 320,
       frame = false,
       transparent = false,
       resizable = true,
+      // webPreferences
+      nodeIntegration = true,
       // custom config
       isDevTools = true,
     } = config
@@ -70,7 +76,7 @@ class WindowManager {
       resizable,
       webPreferences: {
         devTools: true,
-        nodeIntegration: true,
+        nodeIntegration,
         enableRemoteModule: true,
         preload: path.join(__dirname, '../../preload-node.js')
       },
@@ -105,7 +111,9 @@ class WindowManager {
   }
 
   sendMessage(windowId, message) {
-    const window = this.windows.get(windowId)
+    // console.log('sendMessage', windowId, message)
+    const window = this.windows.get(Number(windowId))
+    // console.log('window', this.windows, window)
     if (window) {
       window.webContents.send(Events.UPDATE_MESSAGE, message)
       return true
