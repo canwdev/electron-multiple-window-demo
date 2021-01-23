@@ -1,0 +1,35 @@
+@import "./tools";
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+// 无样式按钮
+.btn-no-style {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  text-decoration: none;
+  &:active {
+    opacity: .8;
+  }
+}
+
+//滚动条样式
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+$scroll: rgba(0, 0, 0, .3);
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, .3);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
