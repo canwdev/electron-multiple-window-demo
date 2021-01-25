@@ -1,5 +1,5 @@
 <template>
-  <div class="window-frame-wrap">
+  <div class="window-frame-wrap" :class="{'is-maximized': isMaximized}">
     <div class="window-title-bar flex items-center justify-between">
       <div class="title">{{ title }}</div>
       <div class="actions">
@@ -62,16 +62,21 @@ $titleHeight: 28px;
   bottom: 0;
   right: 0;
   border: 1px solid $themeColor;
-  border-top: 0;
   display: flex;
   flex-direction: column;
+
+  &.is-maximized {
+    border-top: 0;
+    .window-title-bar {
+      border-top: 1px solid $themeColor;
+    }
+  }
 
   .window-title-bar {
     height: $titleHeight;
     background: $themeColor;
     color: white;
     -webkit-app-region: drag;
-    border-top: 1px solid $themeColor;
     font-size: 12px;
     padding-left: 8px;
     .iconfont {

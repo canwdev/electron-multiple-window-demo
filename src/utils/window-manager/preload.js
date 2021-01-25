@@ -10,9 +10,16 @@ module.exports = {
   async wmSendMessage(windowId, message) {
     return await ipcRenderer.invoke(Events.SEND_MESSAGE, windowId, message)
   },
+  // 向所有窗口发送广播消息
+  async wmSendBroadcastMessage(message) {
+    return await ipcRenderer.invoke(Events.SEND_BROADCAST_MESSAGE, message)
+  },
   // 获取所有窗口ids
   async wmGetWindowIds() {
     return await ipcRenderer.invoke(Events.GET_WINDOW_IDS)
+  },
+  async wmWindowAction(windowId, action) {
+    return await ipcRenderer.invoke(Events.WINDOW_ACTION, windowId, action)
   },
   /**
    * 监听消息更新事件

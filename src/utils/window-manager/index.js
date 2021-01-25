@@ -9,6 +9,8 @@ const WindowStateManager = require('electron-window-state-manager')
  * 支持功能：
  * - 管理创建的窗口
  * - 向单独窗口发送消息
+ * - 窗口状态管理
+ * - 广播消息
  */
 class WindowManager {
   constructor() {
@@ -24,8 +26,37 @@ class WindowManager {
     this.onSendMessage = (ev, windowId, message) => {
       ev.sender.send(Events.SEND_MESSAGE, this.sendMessage(windowId, message))
     }
+    this.onSendBroadcastMessage = (ev, message) => {
+      return this.sendBroadcastMassage(message)
+    }
     this.onGetWindowIds = () => {
       return this.getWindowIds()
+    }
+
+    /**
+     * 调用 window 函数
+     * @param ev
+     * @param windowId
+     * @param action 可以是函数或属性
+     * @returns {void|*}
+     */
+    this.handleWindowAction = (ev, windowId, action) => {
+      if (!action) {
+        throw new Error('action can not be empty')
+      }
+      const window = this.getWindowById(windowId)
+      switch (action) {
+        case 'hideWindow':
+          window.hide()
+          return window.setSkipTaskbar(true)
+        case 'showWindow':
+          window.show()
+          return window.setSkipTaskbar(false)
+        default:
+          const val = window[action]
+          const isFunction = typeof val === 'function'
+          return isFunction ? window[action]() : val
+      }
     }
 
     this.initializeIpcEvents()
@@ -39,7 +70,9 @@ class WindowManager {
 
     ipcMain.handle(Events.CREATE_WINDOW, this.onCreateWindow)
     ipcMain.handle(Events.SEND_MESSAGE, this.onSendMessage)
+    ipcMain.handle(Events.SEND_BROADCAST_MESSAGE, this.onSendBroadcastMessage)
     ipcMain.handle(Events.GET_WINDOW_IDS, this.onGetWindowIds)
+    ipcMain.handle(Events.WINDOW_ACTION, this.handleWindowAction)
 
     this.initialized = true
   }
@@ -49,7 +82,9 @@ class WindowManager {
     if (this.initialized) {
       ipcMain.removeAllListeners(Events.CREATE_WINDOW)
       ipcMain.removeAllListeners(Events.SEND_MESSAGE)
+      ipcMain.removeAllListeners(Events.SEND_BROADCAST_MESSAGE)
       ipcMain.removeAllListeners(Events.GET_WINDOW_IDS)
+      ipcMain.removeAllListeners(Events.WINDOW_ACTION)
     }
     this.initialized = false
   }
@@ -137,6 +172,7 @@ class WindowManager {
     window.loadURL(url);
 
     const windowId = window.id
+    console.log(`[wm] window id=${windowId} create`)
 
     window.on('close', (event) => {
       console.log(`[wm] window id=${windowId} on close`)
@@ -196,7 +232,7 @@ class WindowManager {
    */
   sendMessage(windowId, message) {
     // console.log('sendMessage', windowId, message)
-    const window = this.windows.get(Number(windowId))
+    const window = this.getWindowById(windowId)
     // console.log('window', this.windows, window)
     if (window) {
       window.webContents.send(Events.UPDATE_MESSAGE, message)
@@ -206,11 +242,26 @@ class WindowManager {
   }
 
   /**
+   * 向所有窗口发送广播消息
+   * @param message
+   */
+  sendBroadcastMassage(message) {
+    // 遍历 Map
+    this.windows.forEach(window => {
+      window.webContents.send(Events.UPDATE_MESSAGE, message)
+    })
+  }
+
+  /**
    * 获取当前所有窗口 id 数组
    * @returns []
    */
   getWindowIds() {
     return Array.from(this.windows.keys())
+  }
+
+  getWindowById(windowId) {
+    return this.windows.get(Number(windowId))
   }
 }
 
