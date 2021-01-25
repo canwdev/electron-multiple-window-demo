@@ -3,23 +3,19 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-
-
 export default new Vuex.Store({
   state: {
     windowIds: [],
-    message: null
+    windowMessage: null
   },
   mutations: {
     setWindowIds(state, payload) {
       state.windowIds = payload
     },
-    setMessage(state, payload) {
-      state.message = payload
-    },
+    setWindowMessage(state, payload) {
+      state.windowMessage = payload
+    }
   },
-  actions: {
-  },
-  modules: {
-  }
+  actions: {},
+  modules: {}
 })

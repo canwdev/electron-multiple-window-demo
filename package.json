@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "src/main.js",
   "scripts": {
-    "serve-public": "http-server ./public -p 5000",
+    "serve-public": "http-server ./public -p 3000",
     "dev": "electron .",
     "dev:prod": "cross-env ELECTRON_IS_DEV=0 electron .",
     "build:electron-dir": "electron-builder --dir",

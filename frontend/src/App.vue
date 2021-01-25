@@ -15,7 +15,7 @@ export default {
   async mounted() {
     electronAPI.onUpdateMessage((evt, message) => {
       console.log('onUpdateMessage', evt, message)
-      this.$store.commit('setMessage', message)
+      this.$store.commit('setWindowMessage', message)
     })
     electronAPI.onUpdateWindowIds((evt, windowIds) => {
       console.log('onUpdateWindowIds', evt, windowIds)

@@ -7,11 +7,9 @@ const {app, BrowserWindow} = require('electron'),
 const createSplash = require('./pages/splash/create')
 const {handleArgv, handleUrl} = require('./utils/protocol')
 require('./utils/ipc-main')
-const WindowManager = require('./utils/window-manager')
+const wm = require('./utils/wm')
 
-new WindowManager()
-
-let port = 5000 //默认端口
+let port = 3000 //默认端口
 const host = 'localhost'
 const isDev = isElectionDevMode() // 如果要在开发模式测试打包后的运行环境，请设为 false
 
@@ -25,32 +23,21 @@ const mainWindowState = new WindowStateManager('mainWindow', {
   defaultHeight: minHeight
 });
 
-function createWindow() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: mainWindowState.width,
-    height: mainWindowState.height,
-    x: mainWindowState.x,
-    y: mainWindowState.y,
-    minWidth,
-    minHeight,
-    frame: false,
-    webPreferences: {
-      spellcheck: false,
-      enableRemoteModule: true,
+const createWindow = () => {
+  mainWindow = wm.createWindow({
+      width: 1250,
+      height: 750,
+      minWidth: 1250,
+      minHeight: 750,
+      frame: false,
+      show: false,
+      nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
-      devTools: true
+      isOpenDevTools: isDev,
+      saveWindowStateName: 'mainWindow',
     },
-    show: false,
-    icon: path.join(__dirname, '../build/256x256.png')
-  })
-  // and load the index.html of the app.
-  mainWindow.loadURL(`http://${host}:${port}`)
-  if (isDev) {
-    // Open the DevTools.
-    mainWindow.webContents.openDevTools()
-  }
+    `http://${host}:${port}`
+  )
 
   /// keep listening on the did-finish-load event, when the mainWindow content has loaded
   mainWindow.webContents.on('did-finish-load', () => {
@@ -61,14 +48,6 @@ function createWindow() {
     }
     handleArgv(process.argv, mainWindow);//唤醒参数
     mainWindow.show();
-  });
-
-  if (mainWindowState.maximized) {
-    mainWindow.maximize();
-  }
-
-  mainWindow.on('close', (event) => {
-    mainWindowState.saveState(mainWindow);
   });
 }
 
@@ -82,9 +61,7 @@ app.whenReady().then(() => {
     if (isDev) {
       createWindow()
     } else {
-      const startCheck = require('./utils/start-check')
-      startCheck(splashWindow)
-        .then(startClientProd).catch(startClientProd)
+      startClientProd()
     }
   })
 })
