@@ -31,10 +31,14 @@ const createWindow = () => {
       minHeight: 750,
       frame: false,
       show: false,
-      nodeIntegration: false,
-      contextIsolation: true,
-      isOpenDevTools: isDev,
-      saveWindowStateName: 'mainWindow',
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+      },
+      customConfig: {
+        isOpenDevTools: isDev,
+        saveWindowStateName: 'mainWindow',
+      }
     },
     `http://${host}:${port}`
   )

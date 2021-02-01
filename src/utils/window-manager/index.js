@@ -2,6 +2,7 @@ const {BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
 const Events = require('./events')
 const WindowStateManager = require('electron-window-state-manager')
+const deepmerge = require('deepmerge')
 
 /**
  * 窗口管理器
@@ -91,84 +92,74 @@ class WindowManager {
 
   /**
    * 创建窗口
-   * @param config 窗口配置
+   * @param windowConfig 窗口配置
    * @param url 窗口内容 loadUrl
    * @returns {Electron.BrowserWindow}
    */
-  createWindow(config = {}, url = 'http://localhost:3001') {
-    const {
-      width = 800,
-      height = 600,
-      x,
-      y,
-      minWidth,
-      minHeight,
-      show = true,
-      frame = false,
-      transparent = false,
-      resizable = true,
-      icon = path.join(__dirname, '../../../build/256x256.png'),
-      // webPreferences
-      spellcheck = false,
-      devTools = true,
-      nodeIntegration = true,
-      enableRemoteModule = true,
-      preload,
-      contextIsolation = false,
-      nodeIntegrationInWorker = false,
-      // custom config
-      isOpenDevTools = false, // 是否自动开启调试工具
-      saveWindowStateName,
-      isCloseHide = false, // 点击关闭最小化到任务栏而不是关闭窗口
-    } = config
+  createWindow(windowConfig = {}, url = 'http://localhost:3001') {
+    // 融合默认配置
+    const config = deepmerge({
+      width: 800,
+      height: 600,
+      show: true,
+      frame: false,
+      transparent: false,
+      resizable: true,
+      icon: path.join(__dirname, '../../../build/256x256.png'),
+      webPreferences: {
+        spellcheck: false,
+        devTools: true,
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false,
+        nodeIntegrationInWorker: false,
+      },
+      // 传入自定义设置
+      customConfig: {
+        isOpenDevTools: false, // 是否自动开启调试工具
+        saveWindowStateName: undefined, // 如果要保存窗口状态，传入区分窗口的字符串
+        isCloseHide: false, // 点击关闭最小化到任务栏而不是关闭窗口
+      }
+    }, windowConfig)
 
-    let mPreload
-    if (!preload) {
+    // 自定义配置
+    const customConfig = config.customConfig
+    delete config.customConfig
+
+    // 重写 webPreferences 默认配置
+    const webPreferences = config.webPreferences
+
+    // 指定 preload 文件
+    if (!webPreferences.preload) {
+      const {nodeIntegration, contextIsolation} = webPreferences
       const preloadName = (!nodeIntegration && contextIsolation) ? 'preload.js' : 'preload-node.js'
-      mPreload = path.join(__dirname, `../../${preloadName}`)
+      webPreferences.preload = path.join(__dirname, `../../${preloadName}`)
     }
 
-    let mainWindowState
+    let windowState
 
-    if (saveWindowStateName) {
+    if (customConfig.saveWindowStateName) {
       // 保存窗口位置和大小
-      mainWindowState = new WindowStateManager(saveWindowStateName, {
-        defaultWidth: width,
-        defaultHeight: height
+      windowState = new WindowStateManager(customConfig.saveWindowStateName, {
+        defaultWidth: config.width,
+        defaultHeight: config.height
       })
     } else {
-      mainWindowState = {
-        width: width,
-        height: height,
-        x: x,
-        y: y,
+      windowState = {
+        width: config.width,
+        height: config.height,
+        x: config.x,
+        y: config.y,
       }
     }
 
     // console.log('[wm] mainWindowState', mainWindowState)
-
-    const window = new BrowserWindow({
-      width: mainWindowState.width,
-      height: mainWindowState.height,
-      x: mainWindowState.x,
-      y: mainWindowState.y,
-      minWidth,
-      minHeight,
-      show,
-      frame,
-      transparent,
-      resizable,
-      icon,
-      webPreferences: {
-        spellcheck,
-        devTools,
-        nodeIntegration,
-        enableRemoteModule,
-        preload: mPreload,
-        contextIsolation,
-        nodeIntegrationInWorker,
-      }
-    })
+    const window = new BrowserWindow(deepmerge(config, {
+      width: windowState.width,
+      height: windowState.height,
+      x: windowState.x,
+      y: windowState.y,
+    }))
     window.loadURL(url)
 
     const windowId = window.id
@@ -176,11 +167,11 @@ class WindowManager {
 
     window.on('close', (event) => {
       console.log(`[wm] window id=${windowId} on close`)
-      if (saveWindowStateName) {
-        mainWindowState.saveState(window)
+      if (customConfig.saveWindowStateName) {
+        windowState.saveState(window)
       }
 
-      if (isCloseHide) {
+      if (customConfig.isCloseHide) {
         window.hide()
         window.setSkipTaskbar(true)
         event.preventDefault()
@@ -196,11 +187,11 @@ class WindowManager {
 
     })
 
-    if (isOpenDevTools) {
+    if (customConfig.isOpenDevTools) {
       window.webContents.openDevTools()
     }
 
-    if (mainWindowState.maximized) {
+    if (windowState.maximized) {
       window.maximize()
     }
 
