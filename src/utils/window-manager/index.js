@@ -205,7 +205,7 @@ class WindowManager {
    * @param windowId
    */
   notifyUpdateWindowIDs(windowId) {
-    const windowIds = Array.from(this.windows.keys())
+    const windowIds = this.getWindowIds()
     this.windows.forEach(win => {
       if (win.id === windowId) {
         return
