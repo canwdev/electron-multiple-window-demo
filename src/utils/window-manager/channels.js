@@ -8,6 +8,6 @@ module.exports = {
   WINDOW_ACTION: 'WINDOW_ACTION', // 执行窗口动作
   GET_STATE: 'GET_STATE', // 获取共享状态
   SET_STATE: 'SET_STATE', // 设置共享状态
-  UPDATE_STATE: 'UPDATE_STATE', // 已更新共享状态
-  STATE_UPDATED: 'STATE_UPDATED'
+  UPDATE_STATE: 'UPDATE_STATE', // 更新共享状态
+  STATE_UPDATED: 'STATE_UPDATED' // 共享状态已更新
 }
