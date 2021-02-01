@@ -6,7 +6,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     windowIds: [],
-    windowMessage: null
+    windowMessage: null,
+    sharedState: {}
   },
   mutations: {
     setWindowIds(state, payload) {
@@ -14,6 +15,13 @@ export default new Vuex.Store({
     },
     setWindowMessage(state, payload) {
       state.windowMessage = payload
+    },
+    setSharedState(state, payload) {
+      state.sharedState = payload
+    },
+    updateSharedState(state, payload) {
+      const {key, value} = payload
+      state.sharedState[key] = value
     }
   },
   actions: {},

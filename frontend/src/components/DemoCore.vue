@@ -6,7 +6,7 @@
     </fieldset>
 
     <fieldset>
-        <legend>Window Management</legend>
+      <legend>Window Management</legend>
 
       <button @click="handleCreatedWindow">Create Window</button>
 
@@ -18,40 +18,56 @@
               :key="id"
           >{{ id }}
           </option>
-        </select>
+        </select> &nbsp;
 
-          <button
+        <button
             v-for="action in windowActions"
             :key="action"
             :disabled="!selectedId"
             @click="sendWindowAction(action)"
-          >{{ action }}
-          </button>
+        >{{ action }}
+        </button>
       </p>
 
-        <form @submit.prevent="handleSendMessage">
-        <input v-model="text" type="text" placeholder="message" required>
+      <form @submit.prevent="handleSendMessage">
+        <input v-model="text" type="text" placeholder="message" required> &nbsp;
         <button type="submit" :disabled="!selectedId">Send!</button>
       </form>
     </fieldset>
 
-      <fieldset>
-        <legend>Broadcast Message</legend>
+    <fieldset>
+      <legend>Broadcast Message</legend>
 
-        <form @submit.prevent="handleSendBroadcastMessage">
-          <input required placeholder="message" v-model="text2"/>
-          <button type="submit">Send!</button>
-        </form>
-      </fieldset>
+      <form @submit.prevent="handleSendBroadcastMessage">
+        <input required placeholder="message" v-model="text2"/> &nbsp;
+        <button type="submit">Send!</button>
+      </form>
+    </fieldset>
 
     <fieldset>
       <legend>Received Message</legend>
 
-        <textarea style="width: 100%;" rows="5" readonly :value="message"></textarea>
+      <textarea style="width: 100%;" rows="5" readonly :value="message"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Shared State</legend>
+
+      <form @submit.prevent="handleUpdateSharedState">
+        path <input required type="text" v-model="updateState.path">
+        value <input required type="text" v-model="updateState.value"> &nbsp;
+        <button type="submit">Update</button>
+      </form>
+
+      <form @submit.prevent="handleSetSharedState">
+        state <input required type="text" v-model="newState"> &nbsp;
+        <button type="submit">Set</button>
+      </form>
+
+      <textarea style="width: 100%;" rows="10" readonly :value="JSON.stringify(sharedState, null, 2)"></textarea>
     </fieldset>
 
   </div>
-  </WindowFrame>
 </template>
 
 <script>
@@ -60,7 +76,7 @@ const {electronAPI} = window
 const genText = () => 'Hello World! It\'s ' + Date.now()
 
 export default {
-  name: 'HelloWorld',
+  name: 'DemoCore',
   data() {
     return {
       text: genText(),
@@ -74,7 +90,12 @@ export default {
         'maximize',
         'unmaximize',
         'isMaximized'
-      ]
+      ],
+      updateState: {
+        path: 'a',
+        value: 2
+      },
+      newState: JSON.stringify({b:2})
     }
   },
   computed: {
@@ -83,6 +104,9 @@ export default {
     },
     message() {
       return this.$store.state.windowMessage
+    },
+    sharedState() {
+      return this.$store.state.sharedState
     }
   },
   methods: {
@@ -109,6 +133,12 @@ export default {
       electronAPI.wmWindowAction(this.selectedId, action).then(res => {
         console.log(res)
       })
+    },
+    handleUpdateSharedState() {
+      electronAPI.wmUpdateState(this.updateState.path, this.updateState.value)
+    },
+    handleSetSharedState() {
+      electronAPI.wmSetState(JSON.parse(this.newState))
     }
   }
 }

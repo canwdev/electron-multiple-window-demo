@@ -1,35 +1,44 @@
 const {remote, ipcRenderer} = require('electron')
-const Events = require('./events')
+const Channels = require('./channels')
 
 module.exports = {
   // 创建窗口
   async wmCreateWindow(config, url) {
-    return await ipcRenderer.invoke(Events.CREATE_WINDOW, config, url)
+    return await ipcRenderer.invoke(Channels.CREATE_WINDOW, config, url)
   },
   // 向窗口发送消息
   async wmSendMessage(windowId, message) {
-    return await ipcRenderer.invoke(Events.SEND_MESSAGE, windowId, message)
+    return await ipcRenderer.invoke(Channels.SEND_MESSAGE, windowId, message)
   },
   // 向所有窗口发送广播消息
   async wmSendBroadcastMessage(message) {
-    return await ipcRenderer.invoke(Events.SEND_BROADCAST_MESSAGE, message)
+    return await ipcRenderer.invoke(Channels.SEND_BROADCAST_MESSAGE, message)
   },
   // 获取所有窗口ids
   async wmGetWindowIds() {
-    return await ipcRenderer.invoke(Events.GET_WINDOW_IDS)
+    return await ipcRenderer.invoke(Channels.GET_WINDOW_IDS)
   },
   async wmWindowAction(windowId, action, params) {
-    return await ipcRenderer.invoke(Events.WINDOW_ACTION, windowId, action, params)
+    return await ipcRenderer.invoke(Channels.WINDOW_ACTION, windowId, action, params)
+  },
+  wmGetState() {
+    return ipcRenderer.invoke(Channels.GET_STATE)
+  },
+  wmSetState(state) {
+    return ipcRenderer.invoke(Channels.SET_STATE, state)
+  },
+  wmUpdateState(path, value) {
+    return ipcRenderer.invoke(Channels.UPDATE_STATE, path, value)
   },
   /**
    * 监听消息更新事件
    * @param channel
    * @param listener 回调函数
    */
-  onChannelMessage(channel = Events.UPDATE_MESSAGE, listener) {
+  onChannelMessage(channel = Channels.UPDATE_MESSAGE, listener) {
     ipcRenderer.on(channel, listener)
   },
-  offChannelMessage(channel = Events.UPDATE_MESSAGE, listener) {
+  offChannelMessage(channel = Channels.UPDATE_MESSAGE, listener) {
     ipcRenderer.off(channel, listener)
   },
   /**
@@ -37,7 +46,7 @@ module.exports = {
    * @param listener 回调函数
    */
   onUpdateWindowIds(listener) {
-    ipcRenderer.on(Events.UPDATE_WINDOW_IDS, listener)
+    ipcRenderer.on(Channels.UPDATE_WINDOW_IDS, listener)
   },
   // 当前窗口事件监听
   windowEventListener(name, callback) {

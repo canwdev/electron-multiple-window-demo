@@ -1,8 +1,10 @@
 const {BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
-const Events = require('./events')
+const Channels = require('./channels')
 const WindowStateManager = require('electron-window-state-manager')
 const deepmerge = require('deepmerge')
+const onChange = require('on-change');
+const {MessageItem} = require('./enum')
 
 /**
  * 窗口管理器
@@ -12,6 +14,7 @@ const deepmerge = require('deepmerge')
  * - 向单独窗口发送消息
  * - 窗口状态管理
  * - 广播消息
+ * - 共享状态
  */
 class WindowManager {
   constructor() {
@@ -20,12 +23,47 @@ class WindowManager {
     // 用来判断 IPC 事件是否初始化的值
     this.initialized = false
 
+    this.handleStateChange = (path, value, previousValue, name) => {
+      const data = {
+        path,
+        value,
+        previousValue,
+        name,
+      }
+      console.log('state changed', data)
+      this.sendBroadcastMassage(new MessageItem({
+        channel: Channels.STATE_UPDATED,
+        data
+      }))
+    }
+
+    // 窗口间共享数据
+    this.state = onChange({
+      a: 1
+    }, this.handleStateChange)
+
+    this.handleGetState = () => {
+      const obj = onChange.target(this.state)
+      console.log('handleGetState', obj)
+      return obj
+    }
+    this.handleSetState = (ev, state) => {
+      console.log('handleSetState', state)
+      onChange.unsubscribe(this.state)
+      this.state = onChange(state, this.handleStateChange)
+      this.handleStateChange()
+    }
+    this.handleUpdateState = (ev, path, value) => {
+      console.log('handleUpdateState', path, value)
+      this.state[path] = value
+    }
+
     // 监听事件
     this.onCreateWindow = (ev, config, url) => {
       return this.createWindow(config, url).id
     }
     this.onSendMessage = (ev, windowId, messageItem) => {
-      ev.sender.send(Events.SEND_MESSAGE, this.sendMessage(windowId, messageItem))
+      ev.sender.send(Channels.SEND_MESSAGE, this.sendMessage(windowId, messageItem))
     }
     this.onSendBroadcastMessage = (ev, message) => {
       return this.sendBroadcastMassage(message)
@@ -69,11 +107,14 @@ class WindowManager {
       return
     }
 
-    ipcMain.handle(Events.CREATE_WINDOW, this.onCreateWindow)
-    ipcMain.handle(Events.SEND_MESSAGE, this.onSendMessage)
-    ipcMain.handle(Events.SEND_BROADCAST_MESSAGE, this.onSendBroadcastMessage)
-    ipcMain.handle(Events.GET_WINDOW_IDS, this.onGetWindowIds)
-    ipcMain.handle(Events.WINDOW_ACTION, this.handleWindowAction)
+    ipcMain.handle(Channels.CREATE_WINDOW, this.onCreateWindow)
+    ipcMain.handle(Channels.SEND_MESSAGE, this.onSendMessage)
+    ipcMain.handle(Channels.SEND_BROADCAST_MESSAGE, this.onSendBroadcastMessage)
+    ipcMain.handle(Channels.GET_WINDOW_IDS, this.onGetWindowIds)
+    ipcMain.handle(Channels.WINDOW_ACTION, this.handleWindowAction)
+    ipcMain.handle(Channels.GET_STATE, this.handleGetState)
+    ipcMain.handle(Channels.SET_STATE, this.handleSetState)
+    ipcMain.handle(Channels.UPDATE_STATE, this.handleUpdateState)
 
     this.initialized = true
   }
@@ -81,11 +122,14 @@ class WindowManager {
   // 释放 IPC 事件
   releaseIpcEvents() {
     if (this.initialized) {
-      ipcMain.removeAllListeners(Events.CREATE_WINDOW)
-      ipcMain.removeAllListeners(Events.SEND_MESSAGE)
-      ipcMain.removeAllListeners(Events.SEND_BROADCAST_MESSAGE)
-      ipcMain.removeAllListeners(Events.GET_WINDOW_IDS)
-      ipcMain.removeAllListeners(Events.WINDOW_ACTION)
+      ipcMain.removeAllListeners(Channels.CREATE_WINDOW)
+      ipcMain.removeAllListeners(Channels.SEND_MESSAGE)
+      ipcMain.removeAllListeners(Channels.SEND_BROADCAST_MESSAGE)
+      ipcMain.removeAllListeners(Channels.GET_WINDOW_IDS)
+      ipcMain.removeAllListeners(Channels.WINDOW_ACTION)
+      ipcMain.removeAllListeners(Channels.GET_STATE)
+      ipcMain.removeAllListeners(Channels.SET_STATE)
+      ipcMain.removeAllListeners(Channels.UPDATE_STATE)
     }
     this.initialized = false
   }
@@ -136,16 +180,16 @@ class WindowManager {
       webPreferences.preload = path.join(__dirname, `../../${preloadName}`)
     }
 
-    let windowState
+    let windowPos
 
     if (customConfig.saveWindowStateName) {
       // 保存窗口位置和大小
-      windowState = new WindowStateManager(customConfig.saveWindowStateName, {
+      windowPos = new WindowStateManager(customConfig.saveWindowStateName, {
         defaultWidth: config.width,
         defaultHeight: config.height
       })
     } else {
-      windowState = {
+      windowPos = {
         width: config.width,
         height: config.height,
         x: config.x,
@@ -155,10 +199,10 @@ class WindowManager {
 
     // console.log('[wm] mainWindowState', mainWindowState)
     const window = new BrowserWindow(deepmerge(config, {
-      width: windowState.width,
-      height: windowState.height,
-      x: windowState.x,
-      y: windowState.y,
+      width: windowPos.width,
+      height: windowPos.height,
+      x: windowPos.x,
+      y: windowPos.y,
     }))
     window.loadURL(url)
 
@@ -168,7 +212,7 @@ class WindowManager {
     window.on('close', (event) => {
       console.log(`[wm] window id=${windowId} on close`)
       if (customConfig.saveWindowStateName) {
-        windowState.saveState(window)
+        windowPos.saveState(window)
       }
 
       if (customConfig.isCloseHide) {
@@ -191,7 +235,7 @@ class WindowManager {
       window.webContents.openDevTools()
     }
 
-    if (windowState.maximized) {
+    if (windowPos.maximized) {
       window.maximize()
     }
 
@@ -211,7 +255,7 @@ class WindowManager {
         return
       }
 
-      win.webContents.send(Events.UPDATE_WINDOW_IDS, windowIds)
+      win.webContents.send(Channels.UPDATE_WINDOW_IDS, windowIds)
     })
   }
 
@@ -219,7 +263,7 @@ class WindowManager {
     let channel, data
 
     if (typeof message === 'string') {
-      channel = Events.UPDATE_MESSAGE
+      channel = Channels.UPDATE_MESSAGE
       data = message
     } else {
       channel = message.channel

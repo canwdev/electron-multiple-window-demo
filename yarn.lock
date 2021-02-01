@@ -1222,6 +1222,11 @@ object-keys@^1.0.12:
   resolved "https://registry.npm.taobao.org/object-keys/download/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
   integrity sha1-HEfyct8nfzsdrwYWd9nILiMixg4=
 
+on-change@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.npm.taobao.org/on-change/download/on-change-2.2.3.tgz#256d40d890e511151766e6dfc44b27953ccdafb8"
+  integrity sha1-JW1A2JDlERUXZubfxEsnlTzNr7g=
+
 once@^1.3.0, once@^1.3.1, once@^1.4.0:
   version "1.4.0"
   resolved "https://registry.npm.taobao.org/once/download/once-1.4.0.tgz#583b1aa775961d4b113ac17d9c50baef9dd76bd1"

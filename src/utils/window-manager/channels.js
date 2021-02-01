@@ -5,5 +5,9 @@ module.exports = {
   GET_WINDOW_IDS: 'GET_WINDOW_IDS', // 获取窗口id
   UPDATE_MESSAGE: 'UPDATE_MESSAGE', // 更新消息(channel)
   UPDATE_WINDOW_IDS: 'UPDATE_WINDOW_IDS', // 更新窗口ids
-  WINDOW_ACTION: 'WINDOW_ACTION' // 执行窗口动作
+  WINDOW_ACTION: 'WINDOW_ACTION', // 执行窗口动作
+  GET_STATE: 'GET_STATE', // 获取共享状态
+  SET_STATE: 'SET_STATE', // 设置共享状态
+  UPDATE_STATE: 'UPDATE_STATE', // 已更新共享状态
+  STATE_UPDATED: 'STATE_UPDATED'
 }
