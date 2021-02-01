@@ -1,9 +1,10 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+    <button style="position:fixed; top: 100px;left: 0; z-index: 999"
+            @click="isMessageOn ? offMessage() : onMessage()"
+    >{{ isMessageOn ? 'Turn off message' : 'Turn on message' }}
+    </button>
+
     <router-view/>
   </div>
 </template>
@@ -12,11 +13,13 @@
 const {electronAPI} = window
 
 export default {
+  data() {
+    return {
+      isMessageOn: false,
+    }
+  },
   async mounted() {
-    electronAPI.onUpdateMessage((evt, message) => {
-      console.log('onUpdateMessage', evt, message)
-      this.$store.commit('setWindowMessage', message)
-    })
+    this.onMessage()
     electronAPI.onUpdateWindowIds((evt, windowIds) => {
       console.log('onUpdateWindowIds', evt, windowIds)
       this.$store.commit('setWindowIds', windowIds)
@@ -25,6 +28,20 @@ export default {
     console.log('initial ids', ids)
 
     this.$store.commit('setWindowIds', ids)
+  },
+  methods: {
+    handleUpdateMessage(evt, message) {
+      console.log('onChannelMessage', evt, message)
+      this.$store.commit('setWindowMessage', message)
+    },
+    onMessage() {
+      electronAPI.onChannelMessage('UPDATE_MESSAGE', this.handleUpdateMessage)
+      this.isMessageOn = true
+    },
+    offMessage() {
+      electronAPI.offChannelMessage('UPDATE_MESSAGE', this.handleUpdateMessage)
+      this.isMessageOn = false
+    }
   }
 }
 </script>

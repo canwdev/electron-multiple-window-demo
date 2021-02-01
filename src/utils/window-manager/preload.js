@@ -18,47 +18,62 @@ module.exports = {
   async wmGetWindowIds() {
     return await ipcRenderer.invoke(Events.GET_WINDOW_IDS)
   },
-  async wmWindowAction(windowId, action) {
-    return await ipcRenderer.invoke(Events.WINDOW_ACTION, windowId, action)
+  async wmWindowAction(windowId, action, params) {
+    return await ipcRenderer.invoke(Events.WINDOW_ACTION, windowId, action, params)
   },
   /**
    * 监听消息更新事件
-   * @param cb 回调函数
+   * @param channel
+   * @param listener 回调函数
    */
-  onUpdateMessage(cb) {
-    ipcRenderer.on(Events.UPDATE_MESSAGE, cb)
+  onChannelMessage(channel = Events.UPDATE_MESSAGE, listener) {
+    ipcRenderer.on(channel, listener)
+  },
+  offChannelMessage(channel = Events.UPDATE_MESSAGE, listener) {
+    ipcRenderer.off(channel, listener)
   },
   /**
    * 监听窗口变化事件
-   * @param cb 回调函数
+   * @param listener 回调函数
    */
-  onUpdateWindowIds(cb) {
-    ipcRenderer.on(Events.UPDATE_WINDOW_IDS, cb)
+  onUpdateWindowIds(listener) {
+    ipcRenderer.on(Events.UPDATE_WINDOW_IDS, listener)
   },
   // 当前窗口事件监听
   windowEventListener(name, callback) {
-    const browserWindow = remote.getCurrentWindow();
-    browserWindow.on(name, callback)
+    remote.getCurrentWindow().on(name, callback)
+  },
+  // 当前窗口事件取消监听
+  windowEventListenerOff(name, callback) {
+    remote.getCurrentWindow().off(name, callback)
   },
   // 窗口最小化
   minWindow() {
-    remote.getCurrentWindow().minimize();
+    remote.getCurrentWindow().minimize()
   },
   // 获取 isMaximized
   getIsMaximized() {
-    return remote.getCurrentWindow().isMaximized();
+    return remote.getCurrentWindow().isMaximized()
+  },
+  // 获取 isResizable
+  getIsResizable() {
+    return remote.getCurrentWindow().isResizable()
+  },
+  getWindowId() {
+    return remote.getCurrentWindow().id
   },
   // 窗口最大化
   maxWindow(isMaxed) {
-    const browserWindow = remote.getCurrentWindow();
+    const browserWindow = remote.getCurrentWindow()
     if (!isMaxed) {
-      browserWindow.unmaximize();
+      browserWindow.unmaximize()
     } else {
-      browserWindow.maximize();
+      browserWindow.maximize()
     }
   },
   // 窗口关闭
   closeWindow() {
+    remote.getCurrentWindow().hide() // 防止卡顿，先隐藏窗口
     remote.getCurrentWindow().close()
   },
   // 窗口隐藏

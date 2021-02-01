@@ -21,10 +21,10 @@ class WindowManager {
 
     // 监听事件
     this.onCreateWindow = (ev, config, url) => {
-      this.createWindow(config, url)
+      return this.createWindow(config, url).id
     }
-    this.onSendMessage = (ev, windowId, message) => {
-      ev.sender.send(Events.SEND_MESSAGE, this.sendMessage(windowId, message))
+    this.onSendMessage = (ev, windowId, messageItem) => {
+      ev.sender.send(Events.SEND_MESSAGE, this.sendMessage(windowId, messageItem))
     }
     this.onSendBroadcastMessage = (ev, message) => {
       return this.sendBroadcastMassage(message)
@@ -38,9 +38,10 @@ class WindowManager {
      * @param ev
      * @param windowId
      * @param action 可以是函数或属性
+     * @param params 传输函数的参数（数组）
      * @returns {void|*}
      */
-    this.handleWindowAction = (ev, windowId, action) => {
+    this.handleWindowAction = (ev, windowId, action, params = []) => {
       if (!action) {
         throw new Error('action can not be empty')
       }
@@ -53,9 +54,8 @@ class WindowManager {
           window.show()
           return window.setSkipTaskbar(false)
         default:
-          const val = window[action]
-          const isFunction = typeof val === 'function'
-          return isFunction ? window[action]() : val
+          return (typeof window[action] === 'function')
+            ? window[action](...params) : window[action]
       }
     }
 
@@ -168,8 +168,8 @@ class WindowManager {
         contextIsolation,
         nodeIntegrationInWorker,
       }
-    });
-    window.loadURL(url);
+    })
+    window.loadURL(url)
 
     const windowId = window.id
     console.log(`[wm] window id=${windowId} create`)
@@ -181,9 +181,9 @@ class WindowManager {
       }
 
       if (isCloseHide) {
-        window.hide();
-        window.setSkipTaskbar(true);
-        event.preventDefault();
+        window.hide()
+        window.setSkipTaskbar(true)
+        event.preventDefault()
         console.log(`[wm] window id=${windowId} hide`)
       }
     })
@@ -201,7 +201,7 @@ class WindowManager {
     }
 
     if (mainWindowState.maximized) {
-      window.maximize();
+      window.maximize()
     }
 
     this.windows.set(windowId, window)
@@ -224,6 +224,20 @@ class WindowManager {
     })
   }
 
+  send(window, message) {
+    let channel, data
+
+    if (typeof message === 'string') {
+      channel = Events.UPDATE_MESSAGE
+      data = message
+    } else {
+      channel = message.channel
+      data = message.data
+    }
+
+    return window.webContents.send(channel, data)
+  }
+
   /**
    * 向窗口发送消息
    * @param windowId
@@ -235,7 +249,7 @@ class WindowManager {
     const window = this.getWindowById(windowId)
     // console.log('window', this.windows, window)
     if (window) {
-      window.webContents.send(Events.UPDATE_MESSAGE, message)
+      this.send(window, message)
       return true
     }
     return false
@@ -248,7 +262,7 @@ class WindowManager {
   sendBroadcastMassage(message) {
     // 遍历 Map
     this.windows.forEach(window => {
-      window.webContents.send(Events.UPDATE_MESSAGE, message)
+      this.send(window, message)
     })
   }
 
