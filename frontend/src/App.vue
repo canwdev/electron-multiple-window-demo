@@ -48,15 +48,15 @@ export default {
       this.isMessageOn = false
     },
     handleSharedStateUpdated(ev, data) {
-      console.log('STATE_UPDATED', ev, data)
-      this.getSharedState()
+      console.log('handleSharedStateUpdated', ev, data)
+      // this.getSharedState()
 
-      // const {path, value} = data
-      // if (!path) {
-      //   this.getSharedState()
-      // } else {
-      //   this.$store.commit('updateSharedState', {key: path, value})
-      // }
+      const {path, value} = data
+      if (!path) {
+        this.getSharedState()
+      } else {
+        this.$store.commit('updateSharedState', {key: path, value})
+      }
     },
     async getSharedState() {
       const state = await electronAPI.wmGetState()

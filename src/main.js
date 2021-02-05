@@ -82,7 +82,7 @@ function startClientProd(publicPath) {
   portfinder.getPort(function (err, portfinder) {
     if (err) {
       createServer()
-      throw new Error('端口扫描失败，请用管理员权限运行')
+      throw new Error('端口扫描失败')
     } else {
       port = portfinder
       createServer(portfinder)

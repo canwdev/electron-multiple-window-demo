@@ -21,7 +21,10 @@ export default new Vuex.Store({
     },
     updateSharedState(state, payload) {
       const {key, value} = payload
-      state.sharedState[key] = value
+      state.sharedState = {
+        ...state.sharedState,
+        ...{[key]: value}
+      }
     }
   },
   actions: {},
