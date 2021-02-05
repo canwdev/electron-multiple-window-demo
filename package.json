@@ -7,8 +7,9 @@
     "serve": "yarn --cwd ./frontend serve",
     "electron": "electron .",
     "electron:prod": "cross-env ELECTRON_IS_DEV=0 electron .",
+    "build": "cross-env build:vue && build:electron",
     "build:vue": "yarn --cwd ./frontend build",
-    "build:electron": "electron-builder",
+    "build:electron": "electron-builder --dir",
     "install-dep": "cross-env yarn && yarn --cwd ./public",
     "serve-public": "http-server ./public -p 3000"
   },

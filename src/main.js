@@ -1,11 +1,10 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron'),
-  path = require('path'),
-  WindowStateManager = require('electron-window-state-manager'),
-  httpServer = require('http-server/lib/http-server'),
-  portfinder = require('portfinder');
+const {app, BrowserWindow} = require('electron')
+const httpServer = require('http-server/lib/http-server')
+const portfinder = require('portfinder')
 const createSplash = require('./pages/splash/create')
-const {handleArgv, handleUrl} = require('./utils/protocol')
+const path = require('path')
+
 require('./utils/ipc-main')
 const wm = require('./utils/wm')
 
@@ -17,12 +16,6 @@ let mainWindow;
 let splashWindow
 
 //保存窗口记录
-const minWidth = 1250, minHeight = 750;
-const mainWindowState = new WindowStateManager('mainWindow', {
-  defaultWidth: minWidth,
-  defaultHeight: minHeight
-});
-
 const createWindow = () => {
   mainWindow = wm.createWindow({
       width: 800,
@@ -50,7 +43,6 @@ const createWindow = () => {
       splashWindow.close()
       splashWindow.destroy()
     }
-    handleArgv(process.argv, mainWindow);//唤醒参数
     mainWindow.show();
   });
 }
@@ -65,35 +57,10 @@ app.whenReady().then(() => {
     if (isDev) {
       createWindow()
     } else {
-      startClientProd()
+      startClientProd(path.join(__dirname, '../public'))
     }
   })
 })
-
-
-const shouldQuit = app.requestSingleInstanceLock()
-if (!shouldQuit) {
-  app.quit()
-} else {
-  app.on('second-instance', (event, argv) => {
-    // 当运行第二个实例时,将会聚焦到myWindow这个窗口
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-      mainWindow.show()
-      mainWindow.setSkipTaskbar(false)
-      if (process.platform === 'win32') {
-        handleArgv(argv, mainWindow)
-      }
-    }
-  })
-}
-// 当用户想要在应用中打开一个 URL 时发出（仅用于macOS）
-app.on('open-url', (event, urlStr) => {
-  event.preventDefault();
-  if (mainWindow) handleUrl(urlStr, mainWindow)
-})
-
 
 app.on('activate', function () {
   // On macOS it's common to re-create a window in the app when the
@@ -126,7 +93,7 @@ function startClientProd(publicPath) {
     const server = httpServer.createServer({
       proxy: `http://${host}:${port}?`,
       cache: -1,
-      path: publicPath,
+      root: publicPath,
     });
     server.listen(port, host, createWindow)
   }
