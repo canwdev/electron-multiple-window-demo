@@ -4,6 +4,8 @@
 
 ![screenshot](./screenshot.png)
 
+NPM Library: [@canwdev/electron-window-manager](https://www.npmjs.com/package/@canwdev/electron-window-manager)
+
 ## Demo 功能
 
 - 启动 Splash 视图

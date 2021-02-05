@@ -5,7 +5,7 @@ const {
   IPC_EVENT_START_WINDOW,
   IPC_EVENT_GET_APP_PATH
 } = require('../enum/events')
-const wmPreload = require('./window-manager/preload')
+const wmPreload = require('@canwdev/electron-window-manager/preload')
 
 module.exports = {
   ...wmPreload,

@@ -7,6 +7,15 @@
   resolved "https://registry.npm.taobao.org/7zip-bin/download/7zip-bin-5.0.3.tgz#bc5b5532ecafd923a61f2fb097e3b108c0106a3f"
   integrity sha1-vFtVMuyv2SOmHy+wl+OxCMAQaj8=
 
+"@canwdev/electron-window-manager@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.npmjs.org/@canwdev/electron-window-manager/-/electron-window-manager-0.1.2.tgz#9b1f58902e9f86bcb27ee9a3509f9063818205c7"
+  integrity sha512-gjDbeHDDcpghqDlPztDJ45kyeH996JqLalHM8q1sTN6tTeIOVDENB+5v7HotPvLLhcZ/B+g1hRMm47y8DlcU+A==
+  dependencies:
+    deepmerge "^4.2.2"
+    electron-window-state-manager "^0.3.2"
+    on-change "^2.2.3"
+
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
   resolved "https://registry.npm.taobao.org/@develar/schema-utils/download/@develar/schema-utils-2.6.5.tgz#3ece22c5838402419a6e0425f85742b961d9b6c6"

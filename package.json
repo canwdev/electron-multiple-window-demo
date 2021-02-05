@@ -19,6 +19,7 @@
     "electron-builder": "^22.8.1"
   },
   "dependencies": {
+    "@canwdev/electron-window-manager": "^0.1.2",
     "concurrently": "^5.3.0",
     "deepmerge": "^4.2.2",
     "electron-window-state-manager": "^0.3.2",
