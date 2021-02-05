@@ -1,5 +1,5 @@
 <template>
-  <WindowFrame>
+  <WindowFrame title="Demo 窗口">
     <DemoCore/>
   </WindowFrame>
 </template>

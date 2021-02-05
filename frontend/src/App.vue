@@ -3,11 +3,9 @@
     <div class="global-actions">
       <button
           @click="isMessageOn ? offMessage() : onMessage()"
-      >Turn {{ isMessageOn ? 'off' : 'on' }} channel message
+      >{{ isMessageOn ? '关闭' : '开启' }} 消息监听
       </button>
     </div>
-
-
     <router-view/>
   </div>
 </template>

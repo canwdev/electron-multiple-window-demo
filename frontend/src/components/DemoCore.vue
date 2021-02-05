@@ -1,17 +1,12 @@
 <template>
-  <div class="hello">
+  <div class="demo-core">
     <fieldset>
-      <legend>Test nodeIntegration</legend>
-      <button @click="logFs">log fs</button>
-    </fieldset>
+      <legend>窗口管理</legend>
 
-    <fieldset>
-      <legend>Window Management</legend>
-
-      <button @click="handleCreatedWindow">Create Window</button>
+      <button @click="handleCreatedWindow">新建 Demo 窗口</button>
 
       <p>
-        Target window id:
+        目标窗口 id:
         <select v-model="selectedId">
           <option
               v-for="id in windowIds"
@@ -19,6 +14,8 @@
           >{{ id }}
           </option>
         </select> &nbsp;
+
+        操作：
 
         <button
             v-for="action in windowActions"
@@ -31,42 +28,46 @@
 
       <form @submit.prevent="handleSendMessage">
         <input v-model="text" type="text" placeholder="message" required> &nbsp;
-        <button type="submit" :disabled="!selectedId">Send!</button>
+        <button type="submit" :disabled="!selectedId">发送</button>
       </form>
     </fieldset>
 
     <fieldset>
-      <legend>Broadcast Message</legend>
+      <legend>广播消息</legend>
 
       <form @submit.prevent="handleSendBroadcastMessage">
         <input required placeholder="message" v-model="text2"/> &nbsp;
-        <button type="submit">Send!</button>
+        <button type="submit">发送</button>
       </form>
     </fieldset>
 
     <fieldset>
-      <legend>Received Message</legend>
+      <legend>接收到的消息</legend>
 
       <textarea style="width: 100%;" rows="5" readonly :value="message"></textarea>
     </fieldset>
 
     <fieldset>
-      <legend>Shared State</legend>
+      <legend>窗口间共享状态</legend>
 
       <form @submit.prevent="handleUpdateSharedState">
         path <input required type="text" v-model="updateState.path">
         value <input required type="text" v-model="updateState.value"> &nbsp;
-        <button type="submit">Update</button>
+        <button type="submit">更新</button>
       </form>
 
       <form @submit.prevent="handleSetSharedState">
         state <input required type="text" v-model="newState"> &nbsp;
-        <button type="submit">Set</button>
+        <button type="submit">设置状态</button>
       </form>
 
       <textarea style="width: 100%;" rows="10" readonly :value="JSON.stringify(sharedState, null, 2)"></textarea>
     </fieldset>
 
+    <fieldset>
+      <legend>测试 nodeIntegration</legend>
+      <button @click="logFs">输出 fs</button>
+    </fieldset>
   </div>
 </template>
 
@@ -116,7 +117,8 @@ export default {
       console.log('fs', fs)
     },
     handleCreatedWindow() {
-      electronAPI.wmCreateWindow()
+      // electronAPI.wmCreateWindow()
+      electronAPI.createWindow('demo')
     },
     handleSendMessage() {
       if (!this.selectedId) {
@@ -145,7 +147,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.hello {
+.demo-core {
   margin: 10px;
+  font-size: 14px;
 }
 </style>

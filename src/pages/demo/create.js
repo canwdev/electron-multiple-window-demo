@@ -1,33 +1,14 @@
-const {BrowserWindow} = require('electron')
-const path = require('path')
-// const ipc = require('electron').ipcMain;
+const wm = require('../../utils/wm')
 
 const createWindow = () => {
-  let win
-  win = new BrowserWindow({
+  const url = `http://localhost:3000/#/demo`
+  return wm.createWindow({
     width: 800,
     height: 600,
-    minWidth: 400,
-    minHeight: 300,
-    frame: false,
+    minWidth: 550,
+    minHeight: 350,
     transparent: false,
-    webPreferences: {
-      devTools: true,
-      nodeIntegration: true,
-      enableRemoteModule: true,
-      preload: path.join(__dirname, '../../preload-node.js')
-    },
-    icon: path.join(__dirname, '../../../build/256x256.png')
-  });
-  win.setResizable(true);
-  win.loadURL('http://localhost:4999');
-  win.on('closed', () => (win = null));
-  win.webContents.on('did-finish-load', () => {
-    win.show();
-  });
-  // win.webContents.openDevTools()
-
-  return win
-};
+  }, url)
+}
 
 module.exports = createWindow

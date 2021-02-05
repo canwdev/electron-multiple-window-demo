@@ -17,6 +17,15 @@ html, body {
   &:active {
     opacity: .8;
   }
+  &:disabled {
+    opacity: 0.3;
+  }
+}
+
+fieldset {
+  border: 1px solid #444;
+  margin-bottom: 10px;
+  border-radius: 4px;
 }
 
 //滚动条样式

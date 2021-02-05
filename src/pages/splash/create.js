@@ -1,33 +1,15 @@
-const {BrowserWindow} = require('electron')
+const wm = require('../../utils/wm')
 const path = require('path')
-// const ipc = require('electron').ipcMain;
 
 const createWindow = () => {
-  let win
-  win = new BrowserWindow({
+  const splashUrl = `file://${path.join(__dirname, 'index.html')}`
+  return wm.createWindow({
     width: 400,
     height: 200,
-    frame: false,
+    resizable: false,
     transparent: true,
-    webPreferences: {
-      nodeIntegration: true
-    },
-    icon: path.join(__dirname, '../../../build/256x256.png')
-  });
-  win.setResizable(false);
-  win.loadURL(
-    'file://' + __dirname + '/index.html'
-  );
-  win.on('closed', () => (win = null));
-  win.webContents.on('did-finish-load', () => {
-    win.show();
-  });
-  // win.webContents.openDevTools()
-  // ipc.on('get-cpu-info', function (event, arg) {
-  //   event.sender.send('cpu-info-reply', '1111')
-  // })
-
-  return win
-};
+  }, splashUrl)
+}
 
 module.exports = createWindow
+

@@ -25,10 +25,10 @@ const mainWindowState = new WindowStateManager('mainWindow', {
 
 const createWindow = () => {
   mainWindow = wm.createWindow({
-      width: 1250,
-      height: 750,
-      minWidth: 1250,
-      minHeight: 750,
+      width: 800,
+      height: 600,
+      minWidth: 800,
+      minHeight: 600,
       frame: false,
       show: false,
       webPreferences: {

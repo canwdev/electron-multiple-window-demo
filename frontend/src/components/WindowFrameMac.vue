@@ -1,12 +1,14 @@
 <template>
-  <div class="window-body">
-    <div class="title-bar">
+  <div class="window-frame-wrap" :class="{'is-maximized': isMaximized}">
+    <div class="window-title-bar flex items-center justify-between">
     <span class="actions">
-      <button onclick="handleClose()" class="btn-red"><span>x</span></button>
-      <button onclick="handleMinimum()" class="btn-yellow"><span>-</span></button>
-      <button onclick="handleToggleMaximum()" class="btn-green"><span>+</span></button>
+      <button @click="handleClose" class="btn-no-style btn-red"><span>x</span></button>
+      <button @click="handleMinimum" class="btn-no-style btn-yellow"><span>-</span></button>
+      <button :disabled="!isResizable" @click="handleToggleMaximum"
+              class="btn-no-style btn-green"><span>{{ isMaximized ? '=' : '+' }}</span></button>
     </span>
-      <span class="title">Electron 多窗口通信 Demo</span>
+
+      <span class="title">{{ title }}</span>
       <span class="actions"></span>
     </div>
     <div class="window-content">
@@ -16,16 +18,24 @@
 </template>
 
 <script>
+import WindowFrameMixin from "./window-frame-mixin"
+
 export default {
   name: "WindowFrameMac",
-  methods: {
-  }
+  mixins: [WindowFrameMixin],
+  props: {
+    title: {
+      type: String,
+      default: 'WindowFrameMac'
+    }
+  },
+  methods: {}
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
-.window-body {
+.window-frame-wrap {
   position: absolute;
   top: 0;
   left: 0;
@@ -41,59 +51,69 @@ export default {
   min-height: 300px;
   display: flex;
   flex-direction: column;
+
+  &.is-maximized {
+    border: 0;
+    .window-title-bar {
+
+    }
+  }
+
+  .window-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #ebebeb, #d5d5d5);
+    color: #4d494d;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.6;
+    user-select: none;
+    border-top: 1px solid #f3f1f3;
+    -webkit-app-region: drag;
+    //border-top-left-radius: 6px;
+    //border-top-right-radius: 6px;
+    border-bottom: 1px solid #b1aeb1;
+
+    .title {
+      flex: 1;
+    }
+  }
 }
 
-.title-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(to bottom, #ebebeb, #d5d5d5);
-  color: #4d494d;
-  font-size: 14px;
-  text-align: center;
-  line-height: 1.6;
-  user-select: none;
-  border-top: 1px solid #f3f1f3;
-  -webkit-app-region: drag;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  border-bottom: 1px solid #b1aeb1;
-}
 
-.title-bar .title {
-  flex: 1;
-}
 
 .actions {
   min-width: 100px;
   height: 100%;
   display: flex;
   align-items: center;
-}
 
-.actions button {
-  -webkit-app-region: no-drag;
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-  font-size: 12px;
-}
+  button {
+    -webkit-app-region: no-drag;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    font-size: 12px;
+    margin-left: 8px;
+    position: relative;
+    cursor: default;
 
-.actions button {
-  margin-left: 8px;
-  position: relative;
-}
+    & > span {
+      transition: opacity .3s;
+      opacity: 0;
+    }
+  }
 
-.actions button > span {
-  visibility: hidden;
-}
-
-.actions:hover button > span {
-  visibility: visible;
+  &:hover {
+    button > span {
+      opacity: 1;
+    }
+  }
 }
 
 .btn-red {

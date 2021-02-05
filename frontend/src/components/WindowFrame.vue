@@ -4,7 +4,7 @@
       <div class="title">{{ title }}</div>
       <div class="actions">
         <button @click="handleMinimum" class="btn-no-style">-</button>
-        <button @click="handleToggleMaximum" class="btn-no-style">{{ isMaximized ? '=' : '#' }}</button>
+        <button :disabled="!isResizable" @click="handleToggleMaximum" class="btn-no-style">{{ isMaximized ? '=' : '+' }}</button>
         <button @click="handleClose" class="btn-no-style close">x</button>
       </div>
     </div>
@@ -15,44 +15,23 @@
 </template>
 
 <script>
-const {electronAPI} = window
+import WindowFrameMixin from "./window-frame-mixin"
 
 export default {
   name: 'WindowFrame',
+  mixins: [WindowFrameMixin],
   props: {
     title: {
       type: String,
       default: 'WindowFrame'
     }
   },
-  data() {
-    return {
-      isMaximized: false,
-    }
-  },
-  mounted() {
-    this.getIsMaximized()
-    electronAPI.windowEventListener('resize', this.getIsMaximized)
-  },
-  methods: {
-    getIsMaximized() {
-      this.isMaximized = electronAPI.getIsMaximized()
-    },
-    handleMinimum() {
-      electronAPI.minWindow()
-    },
-    handleToggleMaximum() {
-      electronAPI.maxWindow(!this.isMaximized)
-    },
-    handleClose() {
-      electronAPI.closeWindow()
-    },
-  }
+
 }
 </script>
 
 <style lang="scss" scoped>
-$themeColor: #4caf50;
+$themeColor: #0078D7;
 $titleHeight: 28px;
 
 .window-frame-wrap {
@@ -66,9 +45,9 @@ $titleHeight: 28px;
   flex-direction: column;
 
   &.is-maximized {
-    border-top: 0;
+    border: 0;
     .window-title-bar {
-      border-top: 1px solid $themeColor;
+      height: $titleHeight - 2;
     }
   }
 
@@ -79,6 +58,8 @@ $titleHeight: 28px;
     -webkit-app-region: drag;
     font-size: 12px;
     padding-left: 8px;
+    user-select: none;
+
     .iconfont {
       font-size: 12px;
     }
@@ -93,13 +74,15 @@ $titleHeight: 28px;
         align-items: center;
         justify-content: center;
         font-size: 12px;
+        cursor: default;
+        transition: background .3s;
         &:hover {
           background: rgba(255,255,255,0.2);
         }
 
         &.close {
           &:hover {
-            background: #f44336;
+            background: #E81123;
           }
         }
       }

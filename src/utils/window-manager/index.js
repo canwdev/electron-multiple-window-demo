@@ -140,7 +140,7 @@ class WindowManager {
    * @param url 窗口内容 loadUrl
    * @returns {Electron.BrowserWindow}
    */
-  createWindow(windowConfig = {}, url = 'http://localhost:3001') {
+  createWindow(windowConfig = {}, url = 'http://localhost:3000') {
     // 融合默认配置
     const config = deepmerge({
       width: 800,
