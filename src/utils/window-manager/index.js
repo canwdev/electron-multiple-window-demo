@@ -85,6 +85,10 @@ class WindowManager {
         throw new Error('action can not be empty')
       }
       const window = this.getWindowById(windowId)
+      if (!window) {
+        return
+      }
+
       switch (action) {
         case 'hideWindow':
           window.hide()
@@ -92,7 +96,14 @@ class WindowManager {
         case 'showWindow':
           window.show()
           return window.setSkipTaskbar(false)
+        case 'getOSProcessId':
+          return window.webContents.getOSProcessId()
+        case 'getProcessId':
+          return window.webContents.getProcessId()
         default:
+          if (!window[action]) {
+            return
+          }
           return (typeof window[action] === 'function')
             ? window[action](...params) : window[action]
       }
@@ -250,12 +261,12 @@ class WindowManager {
    */
   notifyUpdateWindowIDs(windowId) {
     const windowIds = this.getWindowIds()
-    this.windows.forEach(win => {
-      if (win.id === windowId) {
+    this.windows.forEach(window => {
+      if (window.id === windowId) {
         return
       }
 
-      win.webContents.send(Channels.UPDATE_WINDOW_IDS, windowIds)
+      window.webContents.send(Channels.UPDATE_WINDOW_IDS, windowIds)
     })
   }
 

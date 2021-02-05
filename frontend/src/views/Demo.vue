@@ -1,5 +1,5 @@
 <template>
-  <WindowFrame title="Demo 窗口">
+  <WindowFrame :title="title">
     <DemoCore/>
   </WindowFrame>
 </template>
@@ -11,6 +11,16 @@ import WindowFrame from '@/components/WindowFrame'
 
 export default {
   name: 'Demo',
+  data() {
+    return {
+      title: 'Demo 窗口'
+    }
+  },
+  metaInfo() {
+    return {
+      title: this.title,
+    }
+  },
   components: {
     DemoCore,
     WindowFrame

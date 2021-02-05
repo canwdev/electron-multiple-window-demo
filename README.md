@@ -2,7 +2,7 @@
 
 框架：Electron + Vue（前端分离） 
 
-![screenshot](./screenshot.jpg)
+![screenshot](./screenshot.png)
 
 ## Demo 功能
 
@@ -10,6 +10,7 @@
 - 自定义窗口，最大化、最小化、切换
 - 创建无限多个窗口
 - 窗口间数据通信
+- 窗口间状态共享
 - 使用 preload 调用方式
 - 支持关闭 nodeIntegration
 

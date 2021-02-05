@@ -1,7 +1,5 @@
 <template>
-  <WindowFrameMac title="Electron 多窗口通信 Demo">
-    <h3>Home 页面</h3>
-
+  <WindowFrameMac :title="title">
     <fieldset>
       <legend>创建窗口</legend>
       <button
@@ -45,7 +43,13 @@ export default {
   },
   data() {
     return {
+      title: 'Electron 多窗口通信',
       windowModules: Object.freeze(windowModules)
+    }
+  },
+  metaInfo() {
+    return {
+      title: this.title,
     }
   },
   methods: {
