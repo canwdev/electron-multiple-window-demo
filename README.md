@@ -17,16 +17,10 @@
 
 ```sh
 # 安装依赖
-yarn && cd frontend && yarn
+yarn run install-dep
 
-# 启动静态页面前端
-yarn serve-public
-
-# 启动 Vue 前端
-cd frontend && yarn serve
-
-# 启动 Electron
-yarn dev
+# 开发模式
+yarn run dev
 ```
 
 ## 参考
